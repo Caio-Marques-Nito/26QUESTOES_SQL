@@ -1,0 +1,156 @@
+1)select raca, COUNT(*)
+from pet
+GROUP by raca
+
+2)SELECT nome , COUNT(*)
+FROM cliente c,atendimento a
+WHERE c.cod_cli= a.cod_cli
+GROUP by c.nome
+HAVING COUNT(*)>3
+
+3)SELECT nome, max(quant)
+FROM (SELECT nome, COUNT(quant) AS quant
+FROM item_atendimento i, pet p
+WHERE i.cod_pet = p.cod_pet
+GROUP BY p.cod_pet)t;    (Essa tá errada mas nao tenho idéia do porque, a lógica parece estar certa)
+
+4)SELECT f.nome 
+FROM funcionario f
+WHERE f.nome LIKE '%a'
+UNION
+SELECT c.nome nomeCli
+FROM cliente c
+WHERE c.nome LIKE '%a'(Voltar para essa questão)
+
+5)update valor_servico set valor = valor * 1.1
+from valor_servico
+
+6)SELECT COUNT(*),s.nome
+FROM servico s,item_atendimento i
+WHERE s.cod_s=i.cod_s
+GROUP BY s.nome
+HAVING COUNT(*)=(SELECT MIN(valores)
+FROM (SELECT COUNT(*) valores
+FROM servico s,item_atendimento i
+WHERE s.cod_s=i.cod_s
+GROUP BY s.nome)t
+);
+
+7) O código deu erro na hora na hora de deletar, acredito que não pude deletar por conta dos relacionamentos e por ser uma tabela de um SELECT já filtrado
+
+8)SELECT raca, MAX(quant),valor_unit
+FROM(
+SELECT raca, quant, valor_unit
+FROM pet p, item_atendimento i
+WHERE i.cod_pet = p.cod_pet
+GROUP BY raca)t; 
+
+9)select s.nome, count(*)
+from item_atendimento ia, servico s
+WHERE ia.cod_s = s.cod_s
+group by s.nome
+having  count(*) = (select max(numatendimentos) from (
+        select count(*) numatendimentos
+        from item_atendimento ia, servico s
+        WHERE ia.cod_s = s.cod_s
+        group by s.nome
+ 	  ) x)
+
+10)SELECT c.nome , AVG(ia.quant * ia.valor_unit * (1 - ia.desconto))
+FROM cliente c, pet p,item_atendimento i
+WHERE c.cod_cli = p.cod_cli AND p.cod_pet = i.cod_pet
+GROUP BY c.nome;
+
+11)SELECT p.nome, COUNT(*)
+FROM pet p, item_atendimento i, servico s
+WHERE i.cod_s = s.cod_s AND p.cod_pet = i.cod_pet AND i.cod_s=3 
+GROUP BY p.cod_pet;
+
+12)SELECT nome,quantidade
+FROM(
+SELECT p.nome, COUNT(*) AS quantidade
+FROM pet p, item_atendimento i, servico s
+WHERE i.cod_s = s.cod_s AND p.cod_pet = i.cod_pet AND i.cod_s=3 
+GROUP BY p.cod_pet)t
+WHERE quantidade > 5 AND quantidade <10;
+
+13)SELECT nome, SUM(valor_unit)
+FROM pet p, item_atendimento i
+WHERE p.cod_pet = i.cod_pet
+GROUP BY nome;
+
+14)SELECT COUNT(*)AS Funcionarios
+FROM funcionario
+
+15)select COUNT(*)
+FROM(SELECT cliente.cod_cli 
+     from cliente, pet 
+     WHERE cliente.cod_cli = pet.cod_cli 
+     GROUP by cliente.nome having COUNT(*) > 2) t, item_atendimento i, pet p
+     WHERE i.cod_pet = p.cod_pet and p.cod_cli = t.cod_cli and i.cod_s = 1
+
+16)SELECT c.nome, f.nome, f.salario_func
+FROM cliente c,atendimento a ,funcionario f,pet p,servico s,item_atendimento i
+WHERE c.cod_cli = p.cod_cli AND p.cod_cli = a.cod_cli AND a.cod_func = f.cod_func AND
+i.cod_s = s.cod_s AND f.salario_func >
+1000 AND i.quant * i.valor_unit * (1 - i.desconto) > 1000
+
+17)SELECT DISTINCT nome 
+FROM pet p, cliente c
+WHERE p.cod_cli = c.cod_cli AND (p.raca = 'Pitbull' OR p.raca = 'Pug' OR p.raca = 'Buldogue' OR p.raca = 'Chihuahua' OR p.raca = 'Poodle')
+
+18)SELECT s.nome , SUM(i.quant * i.valor_unit * (1 - i.desconto))
+FROM servico s, item_atendimento i
+WHERE s.cod_s = i.cod_s
+GROUP BY s.cod_s, s.nome;
+
+19)SELECT avg(salario_func)
+ FROM funcionario
+
+20)SELECT COUNT(*)
+FROM funcionario
+WHERE salario_func > (
+SELECT AVG(salario_func)
+FROM funcionario
+);
+
+21)select *
+ FROM funcionario f
+WHERE f.salario_func < (SELECT avg(salario_func) FROM funcionario)
+
+22)SELECT COUNT(*),nome
+FROM funcionario
+WHERE salario_func < (
+SELECT AVG(salario_func)
+FROM funcionario
+) AND endereco ='Copacabana' OR endereco ='Leme' or endereco = 'Urca'
+GROUP BY nome;
+
+23)SELECT * 
+FROM (
+SELECT v.cod_serv
+FROM valor_servico v
+WHERE v.valor <= 10) baratos,
+(SELECT s.cod_serv 
+FROM valor_servico s 
+WHERE s.valor 
+BETWEEN 10 and 50) bom_preco,
+(SELECT e.cod_serv
+ FROM valor_servico e
+WHERE e.valor > 50) caros
+
+24)SELECT s.nome, AVG(valor)
+FROM servico s, valor_servico v
+WHERE s.cod_s = v.cod_serv AND v.DataF < NOW()
+GROUP BY s.nome;
+
+25)SELECT c.nome, f.nome, p.nome, COUNT(*)
+FROM  funcionario f,cliente c, atendimento a,pet p 
+WHERE a.cod_cli = c.cod_cli AND p.cod_cli = c.cod_cli AND p.raca = 'Labrador' AND f.cod_func = a.cod_func 
+GROUP BY c.nome 
+ORDER by  COUNT(*)
+
+26)SELECT COUNT(*)
+FROM funcionario f, atendimento a, cliente c
+WHERE (f.cod_func = a.cod_func AND a.cod_cli = c.cod_cli) AND (f.salario_func >1000
+OR f.endereco = 'Bangu') AND c.nome LIKE 'A%';
